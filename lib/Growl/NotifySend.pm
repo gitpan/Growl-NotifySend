@@ -3,10 +3,14 @@ use 5.008_001;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
-use Carp        ();
-use File::Which ();
+use Carp           ();
+use File::Which    ();
+use Encode         ();
+#use Encode::Locale ();
+
+my $encoding = Encode::find_encoding('UTF-8');
 
 my $Command;
 
@@ -28,7 +32,7 @@ sub show {
     defined(my $s = $args{summary}) or Carp::croak('You must define summary');
     defined(my $b = $args{body})    or Carp::croak('You must define body');
 
-    my @c = ($Command, @opts, $s, $b);
+    my @c = map { $encoding->encode($_) } ($Command, @opts, $s, $b);
     system(@c) == 0
         or Carp::croak("Failed to call notify-send (@c)");
 }
@@ -50,7 +54,7 @@ Growl::NotifySend - Perl extention to do something
 
 =head1 VERSION
 
-This document describes Growl::NotifySend version 0.01.
+This document describes Growl::NotifySend version 0.02.
 
 =head1 SYNOPSIS
 
@@ -69,7 +73,7 @@ This is a wrapper to C<notify-send(1)>.
 
 =head2 C<< Growl::NotifySend->show(%args | \%args) >>
 
-Shows a notification with I<%args>.
+Shows a notification with I<%args> which are text strings.
 
 =over
 
